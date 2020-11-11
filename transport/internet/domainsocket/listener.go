@@ -10,7 +10,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pires/go-proxyproto"
 	goxtls "github.com/xtls/go"
 	"golang.org/x/sys/unix"
 
@@ -32,6 +31,10 @@ type Listener struct {
 	locker     *fileLocker
 }
 
+/*
+@desc ctx 是网络请求上下文。 1. 获取配置streamSettings 2. 获取当前ip地址？？？？ 3. 启动监听 4. 加上tls配置 5. 启动监听
+@question settings.AcceptProxyProtocol, settings.Abstract是干嘛的？？，streamSettings 和MemoryStreamConfig是干么的？？？
+*/
 func Listen(ctx context.Context, address net.Address, port net.Port, streamSettings *internet.MemoryStreamConfig, handler internet.ConnHandler) (internet.Listener, error) {
 	settings := streamSettings.ProtocolSettings.(*Config)
 	addr, err := settings.GetUnixAddr()
@@ -46,6 +49,7 @@ func Listen(ctx context.Context, address net.Address, port net.Port, streamSetti
 
 	var ln *Listener
 	if settings.AcceptProxyProtocol {
+		// Go 还可以定义函数
 		policyFunc := func(upstream net.Addr) (proxyproto.Policy, error) { return proxyproto.REQUIRE, nil }
 		ln = &Listener{
 			addr:    addr,
@@ -84,6 +88,7 @@ func Listen(ctx context.Context, address net.Address, port net.Port, streamSetti
 
 	return ln, nil
 }
+
 
 func (ln *Listener) Addr() net.Addr {
 	return ln.addr
@@ -147,6 +152,9 @@ func (fl *fileLocker) Release() {
 	}
 }
 
+/*
+desc 初始化
+*/
 func init() {
 	common.Must(internet.RegisterTransportListener(protocolName, Listen))
 }

@@ -20,6 +20,9 @@ var (
 	ErrNoClue = errors.New("not enough information for making a decision")
 )
 
+/*
+@desc 如果异常不为空，引发panic
+*/
 // Must panics if err is not nil.
 func Must(err error) {
 	if err != nil {
